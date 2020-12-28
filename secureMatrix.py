@@ -15,35 +15,44 @@ class User:
             print('{:10} - {:10}'.format(object, roots[self.root[object]]))
 
     def grant_root(self):
+        while True:
+            object, granted_root, user = input('Объект, право, пользователь: ').split(' ')
 
-        if self.root[object] < 100:
-            print('Недостаточно прав на передачу\n')
-
-        else:
-
-            while True:
-                object, granted_root, user = input('Объект, право, пользователь: ').split(' ')
-
-                if not is_include(object, objects):
-                    print('No such object')
-                    continue
-                if not is_include(granted_root, roots, 1):
-                    print('No such root')
-                    continue
-                if not is_include(user, usernames):
-                    print('No such user')
-                    continue
-                else:
-                    break
-
-            self_root = self.root[object]
-            if self_root == 111:
-                users[user].root[object] = granted_root
-
-            elif (self_root | granted_root == self_root):
-                users[user].root[object] = users[user].root[object] | granted_root
+            if self.root[object] < 100:
+                print('Недостаточно прав на передачу\n')
+                continue
+            if not is_include(object, objects):
+                print('No such object')
+                continue
+            if not is_include(granted_root, roots, 1):
+                print('No such root')
+                continue
+            if not is_include(user, usernames):
+                print('No such user')
+                continue
             else:
-                print('Недостаточно прав на передачу')
+                break
+
+        name = usernames.index(user)
+        granted_root_i = get_key(roots, granted_root)
+        self_root = self.root[object]
+
+        if self_root == 111:
+            if granted_root_i == 0 and users[name].root[object] != 111:
+                users[name].root[object] = granted_root_i
+            else:
+                users[name].root[object] = users[name].root[object] | granted_root_i
+            print('Права успешно переданы')
+
+        elif (self_root | granted_root_i == self_root):
+            if granted_root_i == 0 and users[name].root[object] != 111:
+                users[name].root[object] = granted_root_i
+            else:
+                users[name].root[object] = users[name].root[object] | granted_root_i
+            print('Права успешно переданы')
+        else:
+            print('Недостаточно прав на передачу')
+
 
     def use_file(self):
 
@@ -73,7 +82,7 @@ class User:
 
 
 usernames = [
-    'Administrator',
+    'Антон',
     'Александр',
     'Владимир',
     'Глеб',
@@ -109,12 +118,25 @@ def is_include(value, object, is_dict=False):
     else:
         return value in object
 
+def get_key(dictionary, value):
+    if len(dictionary) > 0:
+        for item in dictionary:
+            if dictionary[item] == value:
+                return item
+    return None
+
 def login(name):
     if name in usernames:
         return True
     return False
 
+def admin_roots():
+    for fileName in objects:  # админку мне
+        users[usernames.index('Александр')].root[fileName] = 111
+        users[usernames.index('Глеб')].root[fileName] = 0
+
 def main():
+    admin_roots()
     while True:
         command = input('>>>').lower()
         if command == "login":
